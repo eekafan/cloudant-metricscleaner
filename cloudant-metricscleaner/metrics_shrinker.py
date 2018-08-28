@@ -208,8 +208,8 @@ def execute_metrics_shrinker(sess,clusterurl,startkey,repldoc):
            print('{Metrics database shrinker} Drop existing metricsdb')
            logging.warn('{Metrics database shrinker} Drop existing metricsdb')
            if drop_db(sess,clusterurl,'metrics'):
-            print('{Metrics database shrinker} Recreate metricsdb and replicate content from metrics_tmp')
-            logging.warn('{Metrics database shrinker} Recreate metricsdb and replicate content from metrics_tmp')
+            print('{Metrics database shrinker} Recreate metricsdb and schedule replication from metrics_tmp')
+            logging.warn('{Metrics database shrinker} Recreate metricsdb and schedule replication from metrics_tmp')
             if make_db(sess,clusterurl,'metrics','/opt/cloudant-metricscleaner/metrics-permissions.info'):
              sess.post(clusterurl+'/_replicator',data=json.dumps(repldoc),headers={'content-type':'application/json'})
              return True
@@ -281,8 +281,8 @@ if __name__ == '__main__':
               startkey = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime("[%Y,%-m,%-d]")
               response = execute_metrics_shrinker(sess,s_url,startkey,repldoc)
               if response: 
-                    print('{Metrics database shrinker} Metrics database shrink Completed Successfully for key ['+startkey+']') 
-                    logging.warn('{Metrics database shrinker} Metrics database shrink Completed Successfully for key ['+startkey+']') 
+                    print('{Metrics database shrinker} Metrics database shrink completed to docs after ['+startkey+'] : check replication completes') 
+                    logging.warn('{Metrics database shrinker} Metrics database shrink completed to docs after ['+startkey+'] : check replication completes') 
               else:
                 print('{Metrics database shrinker} Metrics database shrink Failed for key ['+startkey+']') 
                 logging.warn('{Metrics database shrinker} Metrics database shrink Failed for key ['+startkey+']') 
