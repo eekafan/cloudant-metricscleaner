@@ -75,7 +75,7 @@ def get_doc_rev(c_session,url,id):
 
 def get_ddoc(filename):
     ddoc = None
-    full_file = '/opt/cloudant-specialapi/'+filename
+    full_file = '/opt/cloudant-metricscleaner/'+filename
     if os.path.exists(full_file):
       f = open(full_file,'r')
       ddoc =  f.read()

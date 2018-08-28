@@ -175,9 +175,15 @@ def copy_doc(sess,src,dest,docid):
 
 def execute_metrics_shrinker(sess,clusterurl,startkey,repldoc):
  try:
+  print('{Metrics database shrinker} Check stats_by_day view exists in metrics db')
+  logging.warn('{Metrics database shrinker} Check stats_by_day view exists in metrics db')
   if reload_view(sess,clusterurl+'/metrics/_design/daily_view','stats_by_day'):
+   print('{Metrics database shrinker} Drop and recreate temporary database metrics_tmp')
+   logging.warn('{Metrics database shrinker} Drop and recreate temporary database metrics_tmp')
    if drop_db(sess,clusterurl,'metrics_tmp'):
     if make_db(sess,clusterurl,'metrics_tmp','/opt/cloudant-metricscleaner/metrics-permissions.info'):
+     print('{Metrics database shrinker} Copy each view to metrics_tmp')
+     logging.warn('{Metrics database shrinker} Copy each view to metrics_tmp')
      views_response = get_with_retries(sess,clusterurl+'/metrics/_all_docs?startkey="_design"&endkey="_design0"',2,None)
      if views_response is None or views_response.status_code > 250:
           if views_response.status_code > 250:
@@ -185,8 +191,11 @@ def execute_metrics_shrinker(sess,clusterurl,startkey,repldoc):
      else:
        vdata = views_response.json()
        if 'rows' in vdata:
+  
         for doc in vdata['rows']:
           copy_doc(sess,clusterurl+'/metrics',clusterurl+'/metrics_tmp',doc['id']) 
+        print('{Metrics database shrinker} Copy each document within timelimit to metrics_tmp')
+        logging.warn('{Metrics database shrinker} Copy each document within timelimit to metrics_tmp')
         docs_response = get_with_retries(sess,clusterurl+'/metrics/_design/daily_view/_view/stats_by_day?startkey='+startkey,2,None)
         if docs_response is None or docs_response.status_code > 250:
          if docs_response.status_code > 250:
@@ -196,7 +205,11 @@ def execute_metrics_shrinker(sess,clusterurl,startkey,repldoc):
           if 'rows' in data:
            for doc in data['rows']:
             copy_doc(sess,clusterurl+'/metrics',clusterurl+'/metrics_tmp',doc['id']) 
+           print('{Metrics database shrinker} Drop existing metricsdb')
+           logging.warn('{Metrics database shrinker} Drop existing metricsdb')
            if drop_db(sess,clusterurl,'metrics'):
+            print('{Metrics database shrinker} Recreate metricsdb and replicate content from metrics_tmp')
+            logging.warn('{Metrics database shrinker} Recreate metricsdb and replicate content from metrics_tmp')
             if make_db(sess,clusterurl,'metrics','/opt/cloudant-metricscleaner/metrics-permissions.info'):
              sess.post(clusterurl+'/_replicator',data=json.dumps(repldoc),headers={'content-type':'application/json'})
              return True
@@ -204,21 +217,22 @@ def execute_metrics_shrinker(sess,clusterurl,startkey,repldoc):
  except Exception as e:
   logging.warn('{Metrics database shrinker} Error : '+str(e))
   return False
- 
-defaults_file = "/opt/cloudant-metricscleaner/perfagent.conf"
-logfilename = '/var/log/metricshrinker.log'
-logging.basicConfig(filename = logfilename, level=logging.WARN,
-                    format='%(asctime)s[%(funcName)-5s] (%(processName)-10s) %(message)s',
-                    )
-
+  
 try:    
   requests.urllib3.disable_warnings()
 except:
   try:
     requests.packages.urllib3.disable_warnings()
   except:
-    logging.warn("{Metrics database shrinker} Unable to disable urllib3 warnings")
+    logging.warn("{Metrics Database shrinker} Unable to disable urllib3 warnings")
     pass
+
+ 
+defaults_file = "/opt/cloudant-metricscleaner/perfagent.conf"
+logfilename = '/var/log/metricshrinker.log'
+logging.basicConfig(filename = logfilename, level=logging.WARN,
+                    format='%(asctime)s[%(funcName)-5s] (%(processName)-10s) %(message)s',
+                    )
 
 
 if __name__ == '__main__':
