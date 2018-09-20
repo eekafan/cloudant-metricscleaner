@@ -228,8 +228,8 @@ except:
     pass
 
  
-defaults_file = "/opt/cloudant-metricscleaner/perfagent.conf"
-logfilename = '/var/log/metricshrinker.log'
+defaults_file = "/opt/cloudant-metricscleaner/metricscleaner.conf"
+logfilename = '/var/log/metricscleaner.log'
 logging.basicConfig(filename = logfilename, level=logging.WARN,
                     format='%(asctime)s[%(funcName)-5s] (%(processName)-10s) %(message)s',
                     )
@@ -241,12 +241,7 @@ if __name__ == '__main__':
     opts, args = options()
     valid_selection = False
 
-    default_connectioninfo, default_certificate_verification,default_requests_ca_bundle,default_inputlogfile,default_thresholdsfile,\
-     default_eventsexclusionsfile,default_statsexclusionsfile,default_scope,default_granularity,\
-     default_performercount, default_resultslocation, default_outputformat = process_defaults_config(defaults_file)
-
-    if not opts.resultslocation:
-       opts.resultslocation = default_resultslocation
+    default_agelimit,default_connectioninfo, default_certificate_verification,default_requests_ca_bundle = process_defaults_config(defaults_file)
 
     if default_certificate_verification == 'True':
        opts.certverif = True
@@ -278,7 +273,7 @@ if __name__ == '__main__':
         logging.warn("Metrics database shrinker} Cluster Access Error : Session Error ["+str(sresp.status_code)+"]")
       else:
               repldoc = generate_repldoc(s_url,s_credentials,scookie,s_url,s_credentials,scookie,s_username,p_url,False,'basic','metrics_tmp','metrics')
-              startkey = (datetime.datetime.now() - datetime.timedelta(days=7)).strftime("[%Y,%-m,%-d]")
+              startkey = (datetime.datetime.now() - datetime.timedelta(days=default_agelimit)).strftime("[%Y,%-m,%-d]")
               response = execute_metrics_shrinker(sess,s_url,startkey,repldoc)
               if response: 
                     print('{Metrics database shrinker} Metrics database shrink completed to docs after ['+startkey+'] : check replication completes') 
