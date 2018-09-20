@@ -11,8 +11,7 @@ def process_defaults_config(cfile):
     default_connectioninfo = '/opt/cloudant-metricscleaner/metricscleaner_connection.info'
     default_certificate_verification = False
     default_requests_ca_bundle = '/opt/cloudant-metricscleaner/ca.pem'
-    default_inputlogfile = '/var/log/haproxy.log'
-
+    
     if cfile and os.path.isfile(cfile):
       cf = open(cfile,'r')
       cflines = cf.readlines()
@@ -21,7 +20,7 @@ def process_defaults_config(cfile):
           if len(cflineparts) == 2 and cflineparts[0] == 'default_connectioninfo':
              default_connectioninfo = cflineparts[1] 
           elif len(cflineparts) == 2 and cflineparts[0] == 'default_agelimit':
-             default_age_limit = cflineparts[1] 
+             default_agelimit = int(cflineparts[1]) 
           elif len(cflineparts) == 2 and cflineparts[0] == 'default_certificate_verification':
              default_certificate_verification = cflineparts[1] 
           elif len(cflineparts) == 2 and cflineparts[0] == 'default_requests_ca_bundle':
@@ -29,7 +28,7 @@ def process_defaults_config(cfile):
           else:
  	     pass
       cf.close()
-    return default_connectioninfo, default_certificate_verification,default_requests_ca_bundle
+    return default_agelimit,default_connectioninfo, default_certificate_verification,default_requests_ca_bundle
 
 
 def process_connection_info(cinfo):
