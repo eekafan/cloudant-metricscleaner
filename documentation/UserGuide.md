@@ -22,7 +22,7 @@ The tool creates a replication labelled 'metricscleaner' and a datetimestamp. On
 ##	Running the metricscleaner 
 
 As `root` on the server you have installed and configured the tool (usually a load-balancer), go to `opt/metricscleaner` and type  
-`$ python metricsshrinker.py`
+`$ python metrics_shrinker.py`
 
 The tool provides a commentary of its activity.  
 The tool script finishes once the replication is submitted.  
