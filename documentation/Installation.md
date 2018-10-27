@@ -20,7 +20,7 @@ With a patch install, only the last step is necessary.
 
 cloudant-metricsleaner is released via github. Use a github client to download the release level required.
 
-The github repository is 
+The github repository is  
 `https://github.com/rombachuk/cloudant-metricscleaner`
 
 The releases option in Github shows the available releases.
